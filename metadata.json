@@ -1,0 +1,8 @@
+{
+  "name": "Copy of DSA Progress Tracker",
+  "description": "A premium, SaaS-style dashboard for tracking Data Structures and Algorithms progress with GitHub-style heatmaps, analytics, and interview simulation mode.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
