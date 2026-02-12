@@ -1,5 +1,5 @@
 
-[# 🚀 DSA Progress Tracker](https://dsa-sanket.vercel.app/)
+# 🚀 [DSA Progress Tracker](https://dsa-sanket.vercel.app/)
 
 A full-stack MERN application that transforms random DSA practice into structured, data-driven interview preparation.
 
