@@ -23,7 +23,7 @@ interface TrackerContextType {
 }
 
 const TrackerContext = createContext<TrackerContextType | undefined>(undefined);
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://dsa-tracker-application-backend.onrender.com/api';
 
 export const TrackerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
