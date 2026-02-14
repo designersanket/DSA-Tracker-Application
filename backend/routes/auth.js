@@ -72,16 +72,20 @@ router.put('/profile', authenticateToken, async (req, res) => {
     
     // Handle avatar upload to Cloudinary
     if (updates.avatar && updates.avatar.startsWith('data:image')) {
+      console.log('Uploading avatar to Cloudinary...');
       const uploadResult = await cloudinary.uploader.upload(updates.avatar, {
         folder: 'dsa-tracker-avatars',
         transformation: [{ width: 200, height: 200, crop: 'fill' }]
       });
+      console.log('Cloudinary upload successful:', uploadResult.secure_url);
       updates.avatar = uploadResult.secure_url;
     }
     
     const user = await User.findByIdAndUpdate(req.user.id, updates, { new: true }).select('-password');
+    console.log('User updated with avatar:', user.avatar);
     res.json(user);
   } catch (err) {
+    console.error('Profile update error:', err);
     res.status(500).json({ message: err.message });
   }
 });
