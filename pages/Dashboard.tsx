@@ -138,7 +138,14 @@ const Dashboard: React.FC = () => {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : (
-          <Heatmap data={questions.map(q => ({ date: q.dateSolved, count: 1 }))} />
+          <Heatmap data={(() => {
+            const dateMap: Record<string, number> = {};
+            questions.forEach(q => {
+              const date = new Date(q.dateSolved).toDateString();
+              dateMap[date] = (dateMap[date] || 0) + 1;
+            });
+            return Object.entries(dateMap).map(([date, count]) => ({ date, count }));
+          })()} />
         )}
       </div>
 

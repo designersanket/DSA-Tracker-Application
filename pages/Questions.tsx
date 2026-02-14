@@ -634,6 +634,35 @@ const Questions: React.FC = () => {
                       <Code size={14} className="text-indigo-400" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Memory Implementation</span>
                     </div>
+                    <button 
+                      onClick={async () => {
+                        if (!selectedQuestion.code) return alert('Add code first');
+                        setToast('AI analyzing code...');
+                        try {
+                          const res = await fetch('https://dsa-tracker-application-backend.onrender.com/api/ai/code-review', {
+                            method: 'POST',
+                            headers: { 
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${localStorage.getItem('dsa_token')}`
+                            },
+                            body: JSON.stringify({ 
+                              code: selectedQuestion.code, 
+                              language: 'cpp',
+                              problemTitle: selectedQuestion.title 
+                            })
+                          });
+                          const review = await res.json();
+                          const feedback = `AI Review Score: ${review.score}/10\n\nTime: ${review.timeComplexity} | Space: ${review.spaceComplexity}\n\nStrengths:\n${review.strengths.map((s: string) => '• ' + s).join('\n')}\n\nImprovements:\n${review.improvements.map((i: string) => '• ' + i).join('\n')}\n\nOptimizations:\n${review.optimizations}`;
+                          setSelectedQuestion(prev => ({...prev, notes: (prev.notes || '') + '\n\n' + feedback}));
+                          showToast('AI Review Complete!');
+                        } catch (e) {
+                          showToast('AI Review failed');
+                        }
+                      }}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+                    >
+                      <BrainCircuit size={12} /> AI Review
+                    </button>
                   </div>
                   <div className="flex-1">
                     <Editor 
