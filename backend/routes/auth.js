@@ -4,6 +4,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const cloudinary = require('../config/cloudinary');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
@@ -68,6 +69,15 @@ router.put('/profile', authenticateToken, async (req, res) => {
   try {
     const updates = req.body;
     delete updates.password;
+    
+    // Handle avatar upload to Cloudinary
+    if (updates.avatar && updates.avatar.startsWith('data:image')) {
+      const uploadResult = await cloudinary.uploader.upload(updates.avatar, {
+        folder: 'dsa-tracker-avatars',
+        transformation: [{ width: 200, height: 200, crop: 'fill' }]
+      });
+      updates.avatar = uploadResult.secure_url;
+    }
     
     const user = await User.findByIdAndUpdate(req.user.id, updates, { new: true }).select('-password');
     res.json(user);
