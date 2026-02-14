@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
 router.post('/code-review', async (req, res) => {
   try {
     const { code, language, problemTitle } = req.body;
@@ -12,7 +10,12 @@ router.post('/code-review', async (req, res) => {
       return res.status(400).json({ message: 'Code is required' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ message: 'Gemini API key not configured' });
+    }
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
     const prompt = `You are an expert code reviewer for DSA problems. Review the following code and provide:
 1. Code Quality (1-10)
