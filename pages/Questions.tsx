@@ -656,7 +656,29 @@ const Questions: React.FC = () => {
                             throw new Error(err.message || 'Review failed');
                           }
                           const review = await res.json();
-                          const feedback = `AI Review Score: ${review.score}/10\n\nTime: ${review.timeComplexity} | Space: ${review.spaceComplexity}\n\nStrengths:\n${review.strengths.map((s: string) => '• ' + s).join('\n')}\n\nImprovements:\n${review.improvements.map((i: string) => '• ' + i).join('\n')}\n\nOptimizations:\n${review.optimizations}`;
+                          const feedback = `🤖 AI CODE REVIEW (Amazon SDE Style)
+
+📊 Verdict: ${review.verdict || 'Analysis Complete'}
+⭐ Score: ${review.score}/10
+🎯 Amazon Interview: ${review.amazonVerdict || 'Evaluated'}
+
+⏱️ Time Complexity: ${review.timeComplexity}
+💾 Space Complexity: ${review.spaceComplexity}
+
+✅ Strengths:
+${(review.strengths || []).map((s: string) => '• ' + s).join('\n')}
+
+⚠️ Weaknesses:
+${(review.weaknesses || []).map((w: string) => '• ' + w).join('\n')}
+
+🔍 Edge Cases Missing:
+${(review.edgeCasesMissing || ['None identified']).map((e: string) => '• ' + e).join('\n')}
+
+💡 Improvements:
+${(review.improvements || []).map((i: string) => '• ' + i).join('\n')}
+
+🚀 Optimal Approach:
+${review.optimizedApproach || review.optimizations || 'Current approach is optimal'}`;
                           setSelectedQuestion(prev => ({...prev, notes: (prev.notes || '') + '\n\n' + feedback}));
                           showToast('AI Review Complete!');
                         } catch (e: any) {

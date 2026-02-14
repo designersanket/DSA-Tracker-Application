@@ -17,30 +17,45 @@ router.post('/code-review', async (req, res) => {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    const prompt = `You are an expert code reviewer for DSA problems. Review the following code and provide:
-1. Code Quality (1-10)
-2. Time Complexity
-3. Space Complexity
-4. Strengths (2-3 points)
-5. Improvements (2-3 specific suggestions)
-6. Optimizations (if any)
+    const prompt = `You are a senior Amazon SDE interviewer reviewing a coding solution.
+
+Your job is to:
+1. Review the solution strictly
+2. Identify logical errors
+3. Identify edge cases not handled
+4. Check time and space complexity
+5. Suggest optimal approach if not used
+6. Provide optimized code
+7. Explain improvements clearly
+
+Be strict but constructive. Focus on Amazon interview expectations:
+- Optimization thinking
+- Edge case handling
+- Clean code
+- Correct data structure usage
+- Trade-off discussion
 
 Problem: ${problemTitle || 'DSA Problem'}
 Language: ${language || 'Not specified'}
 
-Code:
+User Code:
 \`\`\`
 ${code}
 \`\`\`
 
-Provide a concise, structured review in JSON format:
+Provide response in JSON format:
 {
-  "score": <number>,
+  "verdict": "Correct/Partially Correct/Incorrect",
+  "score": <1-10>,
   "timeComplexity": "<complexity>",
   "spaceComplexity": "<complexity>",
   "strengths": ["<point1>", "<point2>"],
+  "weaknesses": ["<issue1>", "<issue2>"],
+  "edgeCasesMissing": ["<case1>", "<case2>"],
   "improvements": ["<suggestion1>", "<suggestion2>"],
-  "optimizations": "<optimization tips or 'None'"
+  "optimizedApproach": "<explanation>",
+  "optimizations": "<tips>",
+  "amazonVerdict": "Reject/Borderline/Accept"
 }`;
 
     const result = await model.generateContent(prompt);
