@@ -48,7 +48,7 @@ router.post('/login', async (req, res) => {
     if (!validPass) return res.status(400).json({ message: 'Invalid email or password' });
 
     const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, streak: user.streak, leetcodeUsername: user.leetcodeUsername, githubUsername: user.githubUsername } });
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email, streak: user.streak, avatar: user.avatar, leetcodeUsername: user.leetcodeUsername, githubUsername: user.githubUsername } });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
