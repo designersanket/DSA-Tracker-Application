@@ -15,9 +15,11 @@ app.use(cors({
 app.use(express.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/dsa_tracker')
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/dsa_tracker', {
+  serverSelectionTimeoutMS: 5000,
+})
   .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
+  .catch(err => console.log("MongoDB connection error:", err));
 
 // Middleware
 const authenticateToken = (req, res, next) => {
