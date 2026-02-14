@@ -12,7 +12,7 @@ router.post('/code-review', async (req, res) => {
       return res.status(400).json({ message: 'Code is required' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `You are an expert code reviewer for DSA problems. Review the following code and provide:
 1. Code Quality (1-10)
