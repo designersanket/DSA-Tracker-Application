@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Terminal, Github, Chrome, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useTracker } from '../context/TrackerContext';
+import { useTracker, API_URL } from '../context/TrackerContext';
 
 const Register: React.FC<{ onRegister: () => void }> = ({ onRegister }) => {
   const [name, setName] = useState('');
@@ -20,7 +20,7 @@ const Register: React.FC<{ onRegister: () => void }> = ({ onRegister }) => {
     setError('');
 
     try {
-      const res = await fetch('https://dsa-tracker-application-backend.onrender.com/api/auth/register', {
+      const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })

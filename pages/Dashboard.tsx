@@ -62,24 +62,63 @@ const Dashboard: React.FC = () => {
   const isDark = theme === 'dark';
 
   const stats = useMemo(() => {
-    const topics: Record<string, number> = {};
+    const topics: Record<string, { total: number, struggling: number }> = {};
     const diffs = { [Difficulty.EASY]: 0, [Difficulty.MEDIUM]: 0, [Difficulty.HARD]: 0 };
+    let perfectCount = 0;
+    let solvedThisWeek = 0;
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
     questions.forEach(q => {
-      if (q.topics) {
-        q.topics.forEach(t => topics[t] = (topics[t] || 0) + 1);
-      }
+      // Difficulty count
       diffs[q.difficulty]++;
+      
+      // Topic stats
+      if (q.topics) {
+        q.topics.forEach(t => {
+          if (!topics[t]) topics[t] = { total: 0, struggling: 0 };
+          topics[t].total++;
+          if (q.revisionLevel === 'Struggled' || q.revisionLevel === 'Needs Revision') {
+            topics[t].struggling++;
+          }
+        });
+      }
+
+      // Performance stats
+      if (q.revisionLevel === 'Perfect' || q.revisionLevel === 'Review Done') {
+        perfectCount++;
+      }
+
+      // Trend stats
+      if (new Date(q.dateSolved) > sevenDaysAgo) {
+        solvedThisWeek++;
+      }
     });
+
     const entries = Object.entries(topics);
-    const weakest = entries.length > 0 ? entries.sort((a,b) => a[1] - b[1])[0]?.[0] : 'None';
-    return { topics, diffs, weakest };
+    // Weakest topic: highest percentage of struggling
+    const weakestTopic = entries.length > 0 
+      ? entries.sort((a, b) => (b[1].struggling / b[1].total) - (a[1].struggling / a[1].total))[0][0]
+      : 'None';
+
+    const readinessScore = questions.length > 0 
+      ? Math.round((perfectCount / questions.length) * 100) 
+      : 0;
+
+    return { 
+      topicCounts: Object.fromEntries(Object.entries(topics).map(([k, v]) => [k, v.total])), 
+      diffs, 
+      weakest: weakestTopic,
+      trend: solvedThisWeek > 0 ? `+${solvedThisWeek} this week` : 'Start solving',
+      readinessScore: `${readinessScore}%`
+    };
   }, [questions]);
 
   const barData = {
-    labels: Object.keys(stats.topics).length > 0 ? Object.keys(stats.topics) : ['Empty'],
+    labels: Object.keys(stats.topicCounts).length > 0 ? Object.keys(stats.topicCounts) : ['Empty'],
     datasets: [{ 
       label: 'Count', 
-      data: Object.values(stats.topics).length > 0 ? Object.values(stats.topics) : [0], 
+      data: Object.values(stats.topicCounts).length > 0 ? Object.values(stats.topicCounts) : [0], 
       backgroundColor: '#6366f1', 
       borderRadius: 12,
       hoverBackgroundColor: '#4f46e5'
@@ -108,10 +147,10 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatsCard theme={theme} isLoading={isLoading} title="Total Entries" value={questions.length} icon={CheckCircle2} color="bg-indigo-500" trend={questions.length > 0 ? "+3 this week" : "Session start"} />
+        <StatsCard theme={theme} isLoading={isLoading} title="Total Entries" value={questions.length} icon={CheckCircle2} color="bg-indigo-500" trend={stats.trend} />
         <StatsCard theme={theme} isLoading={isLoading} title="Heat Streak" value={`${user?.streak || 0} Days`} icon={Flame} color="bg-orange-500" />
         <StatsCard theme={theme} isLoading={isLoading} title="Core Bottleneck" value={stats.weakest} icon={Zap} color="bg-purple-500" />
-        <StatsCard theme={theme} isLoading={isLoading} title="Readiness Score" value={questions.length > 0 ? "82%" : "0%"} icon={Target} color="bg-emerald-500" />
+        <StatsCard theme={theme} isLoading={isLoading} title="Readiness Score" value={stats.readinessScore} icon={Target} color="bg-emerald-500" />
       </div>
 
       {/* Heatmap Section */}
@@ -164,7 +203,7 @@ const Dashboard: React.FC = () => {
                  <div className={`flex-1 h-full rounded-t-xl ${isDark ? 'bg-gray-800/40' : 'bg-slate-200'}`} />
                  <div className={`flex-1 h-2/3 rounded-t-xl ${isDark ? 'bg-gray-800/40' : 'bg-slate-200'}`} />
                </div>
-             ) : Object.keys(stats.topics).length > 0 ? (
+             ) : Object.keys(stats.topicCounts).length > 0 ? (
                <Bar data={barData} options={{ 
                  responsive: true, 
                  maintainAspectRatio: false, 

@@ -29,7 +29,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 const Settings: React.FC = () => {
-  const { user, updateUserProfile, theme, toggleTheme, syncLeetCode, exportData, logout } = useTracker();
+  const { user, updateUserProfile, theme, toggleTheme, syncLeetCode, exportData, logout, changePassword } = useTracker();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Profile');
   const [isSaving, setIsSaving] = useState(false);
@@ -101,15 +101,20 @@ const Settings: React.FC = () => {
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPassword || newPassword.length < 6) return alert("Password must be at least 6 characters.");
+    if (!currentPassword) return alert("Current password is required.");
+    if (!newPassword || newPassword.length < 6) return alert("New password must be at least 6 characters.");
+    
     setIsUpdatingPassword(true);
-    // Simulation logic - would connect to real endpoint in production
-    setTimeout(() => {
+    try {
+      await changePassword(currentPassword, newPassword);
       triggerFeedback();
       setCurrentPassword('');
       setNewPassword('');
+    } catch (err: any) {
+      alert(err.message || "Failed to update password.");
+    } finally {
       setIsUpdatingPassword(false);
-    }, 1000);
+    }
   };
 
   const handleSync = async () => {

@@ -29,7 +29,7 @@ import {
   Hash
 } from 'lucide-react';
 import Editor from '@monaco-editor/react';
-import { useTracker } from '../context/TrackerContext';
+import { useTracker, API_URL } from '../context/TrackerContext';
 import { Difficulty, Question } from '../types';
 
 const ITEMS_PER_PAGE = 10;
@@ -639,7 +639,7 @@ const Questions: React.FC = () => {
                         if (!selectedQuestion.code) return alert('Add code first');
                         showToast('AI analyzing code...');
                         try {
-                          const res = await fetch('https://dsa-tracker-application-backend.onrender.com/api/ai/code-review', {
+                          const res = await fetch(`${API_URL}/ai/code-review`, {
                             method: 'POST',
                             headers: { 
                               'Content-Type': 'application/json',

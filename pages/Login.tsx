@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Terminal, Github, Chrome, ArrowRight, Loader2, AlertCircle, Database, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useTracker } from '../context/TrackerContext';
+import { useTracker, API_URL } from '../context/TrackerContext';
 
 const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -21,7 +21,7 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
     setServerError(false);
 
     try {
-      const res = await fetch('https://dsa-tracker-application-backend.onrender.com/api/auth/login', {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

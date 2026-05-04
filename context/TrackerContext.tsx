@@ -20,10 +20,11 @@ interface TrackerContextType {
   syncLeetCode: (username: string) => Promise<void>;
   exportData: () => void;
   calculateWeaknesses: () => any[];
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const TrackerContext = createContext<TrackerContextType | undefined>(undefined);
-const API_URL = 'https://dsa-tracker-application-backend.onrender.com/api';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const TrackerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -302,13 +303,34 @@ export const TrackerProvider: React.FC<{ children: ReactNode }> = ({ children })
     URL.revokeObjectURL(url);
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    const isDemo = localStorage.getItem('dsa_demo_mode') === 'true';
+    if (isDemo) throw new Error("Cannot change password in demo mode");
+
+    try {
+      const res = await fetch(`${API_URL}/auth/change-password`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to update password');
+      }
+    } catch (err) {
+      console.error('Change password error:', err);
+      throw err;
+    }
+  };
+
   return (
     <TrackerContext.Provider value={{ 
       questions, user, isOffline, isLoading, theme, toggleTheme,
       addQuestion, updateQuestion, deleteQuestion, 
       updateUserProfile, login, logout, enterDemoMode,
       refreshQuestions: fetchQuestions, syncLeetCode, exportData,
-      calculateWeaknesses
+      calculateWeaknesses, changePassword
     }}>
       {children}
     </TrackerContext.Provider>
