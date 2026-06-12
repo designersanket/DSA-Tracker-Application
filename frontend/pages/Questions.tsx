@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Search, 
   Trash2, 
@@ -26,7 +26,8 @@ import {
   Terminal,
   CheckSquare,
   Square,
-  Hash
+  Hash,
+  Zap
 } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { useTracker, API_URL } from '../context/TrackerContext';
@@ -112,6 +113,7 @@ const CustomDropdown: React.FC<{
 const Questions: React.FC = () => {
   const { questions, addQuestion, updateQuestion, deleteQuestion, theme, user } = useTracker();
   const location = useLocation();
+  const navigate = useNavigate();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [diffFilter, setDiffFilter] = useState<string>('All');
@@ -634,6 +636,15 @@ const Questions: React.FC = () => {
                       <Code size={14} className="text-indigo-400" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Memory Implementation</span>
                     </div>
+                    <button 
+                      onClick={() => {
+                        if (!selectedQuestion.code) return alert('Add code first to visualize');
+                        navigate('/visualize', { state: { code: selectedQuestion.code, title: selectedQuestion.title, language: 'cpp' } });
+                      }}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
+                    >
+                      <Zap size={12} /> Visualize
+                    </button>
                     <button 
                       onClick={async () => {
                         if (!selectedQuestion.code) return alert('Add code first');

@@ -39,10 +39,12 @@ const authenticateToken = (req, res, next) => {
 const authRoutes = require('./routes/auth');
 const questionRoutes = require('./routes/questions');
 const aiRoutes = require('./routes/ai');
+const visualizeRoutes = require('./routes/visualize');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/questions', authenticateToken, questionRoutes);
 app.use('/api/ai', authenticateToken, aiRoutes);
+app.use('/api/visualize', authenticateToken, visualizeRoutes);
 
 app.get('/api/health', (req, res) => res.send('API Running'));
 

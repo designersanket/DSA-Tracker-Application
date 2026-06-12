@@ -13,6 +13,7 @@ import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Visualize from './pages/Visualize';
 import { Loader2 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -79,6 +80,7 @@ const AppContent: React.FC = () => {
                 <Route path="/interview" element={user ? <InterviewMode /> : <Navigate to="/login" />} />
                 <Route path="/analytics" element={user ? <Analytics /> : <Navigate to="/login" />} />
                 <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login" />} />
+                <Route path="/visualize" element={user ? <Visualize /> : <Navigate to="/login" />} />
                 <Route path="/login" element={<Login onLogin={() => {}} />} />
                 <Route path="/register" element={<Register onRegister={() => {}} />} />
               </Routes>
