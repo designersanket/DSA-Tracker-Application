@@ -484,7 +484,7 @@ const LoadingScreen: React.FC<{ isDark: boolean }> = () => {
 
 // ─── Main Visualize Page ──────────────────────────────────────────────────────
 const Visualize: React.FC = () => {
-  const { theme } = useTracker();
+  const { theme, logout } = useTracker();
   const navigate = useNavigate();
   const location = useLocation();
   const isDark = theme === 'dark';
@@ -571,16 +571,25 @@ const Visualize: React.FC = () => {
     traceRef.current = null;
 
     try {
+      const token = localStorage.getItem('dsa_token');
+      if (!token) {
+        throw new Error('Please sign in with an account to use Code Visualization. Guest sessions cannot generate AI traces.');
+      }
+
       const res = await fetch(`${API_URL}/visualize/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('dsa_token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ code, language, title })
       });
       if (!res.ok) {
         const err = await res.json();
+        if (res.status === 401 || res.status === 403) {
+          logout();
+          throw new Error('Your session has expired. Please sign in again to generate a visualization.');
+        }
         throw new Error(err.message || 'Trace generation failed');
       }
       const data = await res.json();
@@ -591,7 +600,7 @@ const Visualize: React.FC = () => {
       setErrorMsg(e.message || 'Unknown error');
       setStatus('error');
     }
-  }, [code, language, title, stopPlay]);
+  }, [code, language, title, stopPlay, logout]);
 
   useEffect(() => {
     if (code.trim()) generateTrace();

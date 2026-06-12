@@ -42,10 +42,22 @@ export const TrackerProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
-  const getHeaders = useCallback(() => ({
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem('dsa_token')}`
-  }), []);
+  const clearSession = useCallback(() => {
+    localStorage.removeItem('dsa_token');
+    localStorage.removeItem('dsa_demo_mode');
+    localStorage.removeItem('dsa_local_user');
+    localStorage.removeItem('dsa_local_questions');
+    setUser(null);
+    setQuestions([]);
+  }, []);
+
+  const getHeaders = useCallback(() => {
+    const token = localStorage.getItem('dsa_token');
+    return {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+  }, []);
 
   const saveLocal = (key: string, data: any) => localStorage.setItem(`dsa_local_${key}`, JSON.stringify(data));
   const getLocal = (key: string) => {
@@ -85,13 +97,15 @@ export const TrackerProvider: React.FC<{ children: ReactNode }> = ({ children })
         setUser(data);
         saveLocal('user', data);
         setIsOffline(false);
+      } else if (res.status === 401 || res.status === 403) {
+        clearSession();
       }
     } catch (err) {
       setIsOffline(true);
       const localUser = getLocal('user');
       if (localUser) setUser(localUser);
     }
-  }, [getHeaders]);
+  }, [getHeaders, clearSession]);
 
   useEffect(() => {
     const init = async () => {
@@ -158,14 +172,7 @@ export const TrackerProvider: React.FC<{ children: ReactNode }> = ({ children })
     setIsLoading(false);
   };
 
-  const logout = () => {
-    localStorage.removeItem('dsa_token');
-    localStorage.removeItem('dsa_demo_mode');
-    localStorage.removeItem('dsa_local_user');
-    localStorage.removeItem('dsa_local_questions');
-    setUser(null);
-    setQuestions([]);
-  };
+  const logout = clearSession;
 
   const addQuestion = async (q: Omit<Question, '_id'>) => {
     const tempId = Date.now().toString();
